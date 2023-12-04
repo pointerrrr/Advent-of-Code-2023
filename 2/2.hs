@@ -1,35 +1,30 @@
 import Data.Char ( isDigit, digitToInt )
+import Debug.Trace
 
 main = do
-    cont <- getContents
-    let ls = map findDigits $ lines cont
-    let l2s = map (\x -> (head x * 10) + last x) ls
-    print l2s
-    print $ sum l2s
+    contents <- getContents
+    let lined = lines contents
+    let digits = map findDigits lined
+    let nrs = map (\x -> (head x * 10) + last x) digits
+    print $ sum nrs
 
 findDigits :: String -> [Int]
 findDigits [] = []
 findDigits (x:xs)
     | isDigit x = digitToInt x : findDigits xs
-    | otherwise = case found of NotFound -> findDigits xs
-                                Found num rest -> num : findDigits rest
-        where
-            found = findWrittenDigit (x:xs)
+    | otherwise = case findWrittenDigit (x:xs) of -1 -> findDigits xs
+                                                  num -> num : findDigits xs
 
-findWrittenDigit :: String -> Found
-findWrittenDigit text = case matchedDigits of [] -> NotFound
-                                              _ -> Found (nr + 1) rest
+findWrittenDigit :: String -> Int
+findWrittenDigit text = case matchedDigits of [] -> -1
+                                              _ -> head matchedDigits
     where
-        matchedDigits = [x | x <- [0..8], matchString (digitsAsWords !! x) text]
-        nr = head matchedDigits
-        rest = drop (length (digitsAsWords !! nr)) text
+        matchedDigits = [x + 1 | x <- [0..8], matchString (digitsAsWords !! x) text]
 
 matchString :: String -> String -> Bool
-matchString [] rest = True
+matchString [] _ = True
 matchString _ [] = False
 matchString (x:xs) (y:ys) = x == y && matchString xs ys
 
 digitsAsWords :: [String]
 digitsAsWords = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-
-data Found = NotFound | Found Int String
